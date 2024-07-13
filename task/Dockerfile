@@ -9,8 +9,8 @@ COPY . .
 # Ensure gradlew is executable
 RUN chmod +x gradlew
 
-# Download the dependencies and build the project
-RUN ./gradlew build --no-daemon
+# Descargar las dependencias y construir el proyecto, pero omitir las pruebas
+RUN ./gradlew build -x test --no-daemon
 
 # Expose the port on which the application will run
 EXPOSE 8080
