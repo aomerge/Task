@@ -2,30 +2,38 @@ version: '3.8'
 
 services:
   app:
+    container_name: task_app
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8000:8000"
+      - "8383:8383"
     volumes:
-      - .:/task
+      - .:/app
     depends_on:
       - mysql
+    command: ["./gradlew", "bootRun", "--stacktrace"]
+    networks:
+        - app-network
+
   mysql:
-    image: mysql:latest
+    image: mysql:8.0
+    container_name: task_mysql
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: gestion_tareas
-      MYSQL_USER: root
-      MYSQL_PASSWORD: root
+      MYSQL_DATABASE: gestionTareas
+      MYSQL_USER: user
+      MYSQL_PASSWORD: userpassword
     ports:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+    networks:
+        - app-network
 
   phpmyadmin:
-    image: phpmyadmin/phpmyadmin
+    image: phpmyadmin/phpmyadmin:latest
     restart: always
     environment:
       PMA_HOST: mysql
@@ -35,3 +43,11 @@ services:
 
 volumes:
   mysql_data:
+    driver: local
+  app:
+    driver: local
+networks:
+    app-network:
+        driver: bridge
+
+

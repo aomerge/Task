@@ -1,21 +1,11 @@
-FROM openjdk:17-jdk-slim
-
-# Set the working directory
-WORKDIR /task
-
-# Copy all files to the container
+# Etapa de construcción
+FROM gradle:7.5.1-jdk17 AS build
+WORKDIR /home/gradle/project
 COPY . .
+RUN gradle clean bootJar
 
-# Ensure gradlew is executable
-RUN chmod +x gradlew
-
-# Descargar las dependencias y construir el proyecto, pero omitir las pruebas
-RUN ./gradlew build -x test --no-daemon
-
-# Expose the port on which the application will run
-EXPOSE 8080
-
-# Set the entry point for the container
-ENTRYPOINT ["./gradlew"]
-CMD ["run"]
-
+# Etapa final
+FROM openjdk:17
+WORKDIR /my-project
+COPY --from=build /home/gradle/project/build/libs/*.jar app.jar
+ENTRYPOINT ["java", "-jar", "app.jar"]
